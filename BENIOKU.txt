@@ -1,0 +1,50 @@
+MAIL AKTARICI
+=============
+
+Bilgisayardaki Outlook maillerinin tamamını bir klasöre kopyalar. Hiçbir şey kurmaya gerek yok;
+Windows 10 ve 11'de çalışır. Kaynaktaki hiçbir mail silinmez veya değiştirilmez.
+
+KULLANIM
+1. MailAktarici.exe dosyasını flash bellekle mailleri alınacak bilgisayara götürün.
+2. Çift tıklayın. (Windows "tanınmayan uygulama" derse: Ek bilgi > Yine de çalıştır.)
+3. "Aktarmayı Başlat"a basın. Varsayılan kayıt yeri Masaüstü.
+4. Bitince Masaüstünde "Mailler_BİLGİSAYARADI_tarih" klasörü oluşur. O klasörü flash belleğe kopyalayın.
+
+NELERİ ALIR
+- Outlook'taki tüm hesaplar: IMAP, POP, Exchange / Microsoft 365, profile bağlı PST dosyaları.
+- Diskte duran, Outlook'a bağlı olmayan eski PST arşivleri (diskler taranır).
+- İsteğe bağlı: Outlook yoksa ya da yeni Outlook kullanılıyorsa, sunucudan doğrudan IMAP/POP3 ile indirme
+  (sunucu adı ve parola gerekir).
+
+KLASÖRDE NE ÇIKAR
+- Hesap klasörleri: her mail ayrı .eml dosyası, Outlook'taki klasör yapısıyla. Ekler mailin içinde.
+- TumMailler.pst: hepsi tek dosyada. Yeni hesaba almanın en kolay yolu:
+  Outlook > Dosya > Aç ve Dışarı Aktar > İçeri/Dışarı Aktar > Başka bir program veya dosyadan içeri aktar >
+  Outlook Veri Dosyası (.pst) > TumMailler.pst > "Öğeleri şu klasöre aktar" kısmında yeni hesabı seçin.
+- mail_listesi.csv: Excel'de açılan tam liste.
+- ozet_rapor.txt: hesap hesap, klasör klasör "kaynakta kaç mail, kaç tanesi alındı" ve doğrulama sonucu.
+- gunluk.txt: ayrıntılı kayıt.
+
+YARIDA KALIRSA
+- Disk çıkarılır, dolar ya da durdurursanız program kapanmaz, sebebini yazıp durur.
+- Aynı yere tekrar "Aktarmayı Başlat" deyince "kaldığı yerden devam edilsin mi" diye sorar;
+  sağlam yazılmış mailleri tekrar yazmaz.
+- Beklenmeyen bir hata olursa sebebi Masaüstüne "MailAktarici_HATA_tarih.txt" olarak yazılır.
+  Günlüğün bir kopyası her zaman bilgisayarın kendi diskinde durur: %LOCALAPPDATA%\MailAktarici
+
+BİLİNMESİ GEREKENLER
+- Veri çok büyükse (on GB'larca) aktarım başlamadan yer yeterli mi diye sorar. MSG kopyasını
+  açmayın; kaynaklar zaten PST dosyasıysa en hızlısı Outlook kapalıyken o PST dosyalarını kopyalamaktır.
+- Toplam 40 GB'ı geçen veride tek PST yerine her hesap için ayrı PST üretilir (PST sınırı 50 GB).
+- Outlook ile aynı yetkide çalıştırın (ikisi de normal ya da ikisi de yönetici).
+- Masaüstü OneDrive ile eşitleniyorsa program uyarır; mailler buluta gitmesin diye başka bir yer seçin.
+- Exchange / Microsoft 365 hesaplarında Outlook bazen yalnız son 1 yılı bilgisayarda tutar. Rapor bunu fark
+  ederse uyarır: Hesap Ayarları > Değiştir > kaydırıcıyı "Tümü" yapıp eşitleme bitince tekrar çalıştırın.
+- Gmail'de aynı mail birden çok etikette durabildiği için birden çok klasörde görünebilir.
+
+Komut satırı kullanımı için: MailAktarici.exe yardim
+
+---------------------------------------------------------------
+Mail Aktarıcı 1.1.0 · by cecey · MIT lisansı
+LinkedIn : https://www.linkedin.com/in/cuma-ali-dirik-b46094178/
+GitHub   : https://github.com/ceceys

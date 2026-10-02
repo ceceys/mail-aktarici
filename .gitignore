@@ -1,0 +1,22 @@
+# Derleme çıktıları (exe GitHub'da Releases'a yüklenir, depoya girmez)
+dist/
+release/
+tests/bin/
+*.exe
+*.pdb
+
+# Aktarım çıktıları ve gerçek mail verisi: asla depoya girmesin
+Mailler_*/
+*.pst
+*.ost
+*.eml
+*.msg
+MailAktarici_HATA_*.txt
+gunluk_*.txt
+ozet_rapor*.txt
+mail_listesi.csv
+
+# Geçici dosyalar
+~*.tmp
+*.tmp
+__pycache__/
