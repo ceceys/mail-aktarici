@@ -1,12 +1,14 @@
 # Mail Aktarıcı
 
-Bir Windows bilgisayardaki Outlook maillerinin tamamını tek bir klasöre kopyalayan, kurulum gerektirmeyen küçük bir araç. Klasörü flash belleğe alıp başka bir bilgisayarda yeni mail adresine aktarmak için yazıldı.
+Outlook maillerinin tamamını tek klasöre EML ve PST olarak kopyalayan, kurulum gerektirmeyen Windows aracı.
 
-Kaynaktaki hiçbir mail silinmez veya değiştirilmez.
+| Sürüm | Platform | Lisans | İndirme |
+|---|---|---|---|
+| 1.1.0 | Windows 10 / 11, klasik Outlook | MIT | [Son sürüm](../../releases/latest) |
+
+Bilgisayar değişiminde ya da yeni mail adresine geçişte kullanıcının bütün maillerini eksiksiz taşımak için geliştirildi. Kaynaktaki hiçbir mail silinmez veya değiştirilmez.
 
 ![Mail Aktarıcı ekranı](docs/ekran.png)
-
-**[⬇ Son sürümü indir](../../releases/latest)**  ·  Windows 10 / 11  ·  tek dosya, kurulum yok
 
 ---
 
@@ -104,7 +106,7 @@ MailAktarici.exe yardim
 
 ## Lisans
 
-[MIT](LICENSE) · **by cecey** · [LinkedIn](https://www.linkedin.com/in/cuma-ali-dirik-b46094178/) · [GitHub](https://github.com/ceceys)
+[MIT](LICENSE) · **by cecey** · [LinkedIn](https://www.linkedin.com/in/cuma-ali-dirik/) · [GitHub](https://github.com/ceceys)
 
 ---
 
