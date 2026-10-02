@@ -10,7 +10,7 @@ namespace MailAktarici
 {
     static class Program
     {
-        public const string Version = "1.1.0";
+        public const string Version = "1.1.1";
         public const string Author = "cecey";
         public const string LinkedInUrl = "https://www.linkedin.com/in/cuma-ali-dirik/";
         public const string GitHubUrl = "https://github.com/ceceys";

@@ -60,6 +60,15 @@ namespace MailAktarici
                 Shown += (s, e) => chkServer.Checked = true;
                 AppendLog("Bu bilgisayarda klasik Outlook yok. Mailleri sunucudan indirmek için 'Sunucudan doğrudan indir' bölümünü doldurun.");
             }
+            else if (OutlookSession.ClassicProfileCount() == 0)
+            {
+                // Klasik Outlook kurulu ama hiç kullanılmamış: hesaplar yeni Outlook'ta.
+                chkOutlook.Checked = false;
+                chkPst.Checked = false;
+                Shown += (s, e) => OfferServer("Bu bilgisayarda klasik Outlook'ta hiç hesap yok; hesaplar yeni Outlook'ta görünüyor.");
+            }
+            else if (OutlookSession.NewOutlookPreferred())
+                AppendLog("Not: bu bilgisayarda 'Yeni Outlook' anahtarı açık. Program klasik Outlook profilini arka planda okumayı deneyecek.");
         }
 
         // ---------------- Arayüz ----------------
@@ -183,6 +192,16 @@ namespace MailAktarici
             chkServer.CheckedChanged += (s, e) => { if (chkServer.Checked && serverCfg == null) EditServer(); };
             c.Controls.Add(SplitRow(optServer, btnServer));
             return card;
+        }
+
+        // Yeni Outlook: yolları anlatıp sunucudan indirme penceresini açmayı önerir.
+        void OfferServer(string reason)
+        {
+            OutlookSession.NewOutlookDetected = false;
+            AppendLog(reason);
+            var ans = MessageBox.Show(this, reason + "\r\n\r\n" + NewOutlookException.Ways +
+                "\r\n\r\nSunucudan indirme ayarlarını şimdi açayım mı?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (ans == DialogResult.Yes) chkServer.Checked = true;
         }
 
         // Sunucu ayarları ayrı küçük pencerede; ana ekranda yalnız özet satırı görünür.
@@ -462,6 +481,7 @@ namespace MailAktarici
                     ? found.Count + " hesap, " + found.Sum(x => x.Items).ToString("N0") + " mail, " + Util.FormatSize(found.Sum(x => x.Bytes)) + " · istemediğinizin işaretini kaldırın"
                     : "Outlook'ta hesap bulunamadı.";
                 Idle(null);
+                if (OutlookSession.NewOutlookDetected) OfferServer("Bu bilgisayarda yeni Outlook kullanılıyor.");
             });
         }
 
@@ -607,6 +627,11 @@ namespace MailAktarici
                 lblStatus.Text = reporter.Status;
                 progress.Value = progress.Maximum;
                 if (closeAfterWork) return;
+                if (OutlookSession.NewOutlookDetected)
+                {
+                    OfferServer("Bu bilgisayarda yeni Outlook kullanılıyor; Outlook'taki hesaplar alınamadı.");
+                    return;
+                }
                 string msg = "Aktarım bitti: " + reporter.Status + "\r\n\r\nKlasör:\r\n" + package +
                     "\r\n\r\nAyrıntılar klasördeki 'ozet_rapor.txt' dosyasında." +
                     (reporter.LocalLogPath != null ? "\r\nGünlüğün bu bilgisayardaki kopyası: " + reporter.LocalLogPath : "") +

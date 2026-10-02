@@ -4,7 +4,7 @@ Outlook maillerinin tamamını tek klasöre EML ve PST olarak kopyalayan, kurulu
 
 | Sürüm | Platform | Lisans | İndirme |
 |---|---|---|---|
-| 1.1.0 | Windows 10 / 11, klasik Outlook | MIT | [Son sürüm](../../releases/latest) |
+| 1.1.1 | Windows 10 / 11, klasik Outlook | MIT | [Son sürüm](../../releases/latest) |
 
 Bilgisayar değişiminde ya da yeni mail adresine geçişte kullanıcının bütün maillerini eksiksiz taşımak için geliştirildi. Kaynaktaki hiçbir mail silinmez veya değiştirilmez.
 

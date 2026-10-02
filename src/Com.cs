@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -206,6 +207,52 @@ namespace MailAktarici
     {
         public object App, Ns;
 
+        public static bool NewOutlookDetected;   // arayüz, iş bitince kullanıcıya yolları gösterir
+
+        // Klasik Outlook profilleri (Kaspersky'nin geçici AvpPstTmp profilleri sayılmaz)
+        public static int ClassicProfileCount()
+        {
+            int n = 0;
+            foreach (string root in new[] { @"Software\Microsoft\Office\16.0\Outlook\Profiles", @"Software\Microsoft\Office\15.0\Outlook\Profiles" })
+            {
+                try
+                {
+                    using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(root))
+                        if (k != null) n += k.GetSubKeyNames().Count(x => !x.StartsWith("AvpPstTmp", StringComparison.OrdinalIgnoreCase));
+                }
+                catch { }
+            }
+            return n;
+        }
+
+        // Klasik Outlook'taki "Yeni Outlook" anahtarı açık mı
+        public static bool NewOutlookPreferred()
+        {
+            foreach (string key in new[] { @"Software\Microsoft\Office\16.0\Outlook\Preferences", @"Software\Policies\Microsoft\Office\16.0\Outlook\Preferences" })
+            {
+                try
+                {
+                    using (var k = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(key))
+                    {
+                        object v = k == null ? null : k.GetValue("UseNewOutlook");
+                        if (v is int && (int)v == 1) return true;
+                    }
+                }
+                catch { }
+            }
+            return false;
+        }
+
+        public static bool IsNewOutlookInstalled()
+        {
+            try
+            {
+                string apps = Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Microsoft\WindowsApps\olk.exe");
+                return System.IO.File.Exists(apps) || System.IO.Directory.Exists(Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Microsoft\Olk"));
+            }
+            catch { return false; }
+        }
+
         public static bool IsClassicOutlookInstalled()
         {
             return Type.GetTypeFromProgID("Outlook.Application") != null;
@@ -221,12 +268,21 @@ namespace MailAktarici
                 throw new ApplicationException("Bu bilgisayarda klasik Outlook (masaüstü Outlook) kurulu değil. " +
                     "Yeni Outlook uygulaması dışarıdan okunamaz; o durumda 'Sunucudan doğrudan indir' seçeneğini kullanın.");
             object app = TryActive();
-            if (app == null)
+            if (app == null && Process.GetProcessesByName("OUTLOOK").Length == 0)
             {
-                bool running = Process.GetProcessesByName("OUTLOOK").Length > 0;
-                if (!running) StartVisible(r);
-                app = WaitReady(t, r);
+                if (ClassicProfileCount() == 0)
+                    throw new NewOutlookException("Klasik Outlook'ta hiç hesap tanımlı değil" + (IsNewOutlookInstalled() ? " (hesaplar yeni Outlook'ta)." : "."));
+                if (NewOutlookPreferred())
+                {
+                    // Yeni Outlook anahtarı açık: görünür açılış yeni Outlook'a yönlenir. Klasik profil
+                    // duruyorsa arka planda (otomasyon) açılış yine çalışabilir; bir kez denenir.
+                    r.Info("Bu bilgisayarda yeni Outlook açık; klasik Outlook arka planda deneniyor...");
+                    try { app = Activator.CreateInstance(t); }
+                    catch (COMException) { throw new NewOutlookException("Bu bilgisayarda yeni Outlook kullanılıyor."); }
+                }
+                else StartVisible(r);
             }
+            if (app == null) app = WaitReady(t, r);
             object ns = Com.Call(app, "GetNamespace", "MAPI");
             try { Com.Call(ns, "Logon", Type.Missing, Type.Missing, false, false); }
             catch (Exception ex) { r.Warn("Outlook oturum açma uyarısı: " + Com.Message(ex)); }
@@ -262,6 +318,7 @@ namespace MailAktarici
             string lastPrompt = null;
             int coTries = 0;
             Exception last = null;
+            DateTime goneSince = DateTime.MinValue;
             while (DateTime.UtcNow < until)
             {
                 r.Check();
@@ -285,6 +342,17 @@ namespace MailAktarici
                     try { return Activator.CreateInstance(t); }
                     catch (COMException ex) { last = ex; }
                 }
+                if (Process.GetProcessesByName("OUTLOOK").Length == 0)
+                {
+                    if (goneSince == DateTime.MinValue) goneSince = DateTime.UtcNow;
+                    if ((DateTime.UtcNow - start).TotalSeconds > 20 && (DateTime.UtcNow - goneSince).TotalSeconds > 15)
+                    {
+                        if (Process.GetProcessesByName("olk").Length > 0 || IsNewOutlookInstalled())
+                            throw new NewOutlookException("Klasik Outlook açılıp kapandı, yeni Outlook'a yönleniyor.");
+                        throw new ApplicationException("Outlook açılıp hemen kapandı. Outlook'u elle açıp hesabın göründüğünü kontrol edin, sonra tekrar deneyin.");
+                    }
+                }
+                else goneSince = DateTime.MinValue;
                 System.Threading.Thread.Sleep(1500);
             }
             if (Process.GetProcessesByName("OUTLOOK").Length > 0)
@@ -363,6 +431,22 @@ namespace MailAktarici
                 return false;
             }, IntPtr.Zero);
             return found;
+        }
+    }
+
+    // Yeni Outlook kullanılan bilgisayar: mailler klasik Outlook üzerinden okunamaz.
+    sealed class NewOutlookException : ApplicationException
+    {
+        public const string Ways =
+            "Yeni Outlook'taki maillere programın doğrudan ulaşma yolu yok. Üç yol var:\r\n\r\n" +
+            "1. Hesap IMAP ya da POP ise: 'Sunucudan doğrudan indir' ile sunucu adı ve parolayı girin.\r\n" +
+            "2. Yeni Outlook'un sağ üstündeki 'Yeni Outlook' anahtarını kapatın; açılan klasik Outlook'a hesabı ekleyin, " +
+            "eşitlenince bu programı tekrar çalıştırın.\r\n" +
+            "3. Hesap Microsoft 365 / Outlook.com ise mailler zaten Microsoft bulutunda; yeni bilgisayarda o hesapla oturum açmak yeterli.";
+
+        public NewOutlookException(string reason) : base(reason + " " + Ways.Replace("\r\n\r\n", " ").Replace("\r\n", " "))
+        {
+            OutlookSession.NewOutlookDetected = true;
         }
     }
 }

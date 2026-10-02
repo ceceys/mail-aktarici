@@ -45,6 +45,6 @@ BİLİNMESİ GEREKENLER
 Komut satırı kullanımı için: MailAktarici.exe yardim
 
 ---------------------------------------------------------------
-Mail Aktarıcı 1.1.0 · by cecey · MIT lisansı
+Mail Aktarıcı 1.1.1 · by cecey · MIT lisansı
 LinkedIn : https://www.linkedin.com/in/cuma-ali-dirik/
 GitHub   : https://github.com/ceceys

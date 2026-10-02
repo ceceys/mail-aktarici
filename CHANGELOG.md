@@ -1,5 +1,11 @@
 # Sürüm notları
 
+## 1.1.1 · 2026-10-02
+
+- Yeni Outlook kullanılan bilgisayarda program artık 10 dakika beklemiyor; en geç 30 saniyede durumu söylüyor ve yolları gösteriyor (sunucudan indirme, klasik Outlook'a dönme ya da Microsoft 365 bulutu).
+- Klasik Outlook'ta hiç hesap yoksa bu açılışta söyleniyor ve "Sunucudan doğrudan indir" penceresi öneriliyor.
+- Klasik Outlook açılıp hemen kapanırsa program beklemek yerine sebebini yazıyor.
+
 ## 1.1.0 · 2026-10-02
 
 - Yeni arayüz: tek ekran, kaydırma yok. Solda kaynaklar, sağda kayıt yeri, biçim ve günlük; altta her zaman görünen başlat çubuğu.
